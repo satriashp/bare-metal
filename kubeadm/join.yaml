@@ -1,0 +1,23 @@
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: "k8s.satriashp.cloud:6443" # API Server endpoint
+    # token and caCerthasts that print after kubeadm init on control-plane node
+    token: k4lbpr.r4enjx8ao7kt5qyo # change with appropiate value
+    caCertHashes:
+      - sha256:9d78bc6042a5226b20c423c67c2b96c3f61232f781110e92b8d7dd2af9b1f5f9 # change with appropiate value
+# nodeRegistration:
+#   kubeletExtraArgs:
+#     # ip address of current node
+#     - name: node-ip
+#       value: 192.168.0.86
+
+---
+# Instead of self signing a serving certificate,
+# the Kubelet will request a certificate from the 'certificates.k8s.io' API.
+# This requires an approver to approve the certificate signing requests (CSR).
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+serverTLSBootstrap: true
