@@ -1,0 +1,19 @@
+- name: Disable swap (runtime)
+  ansible.builtin.command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Comment out swap entry in fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*\s+swap\s+.*)$'
+    replace: '# \1'
+
+- name: Remove default Ubuntu swapfile (optional)
+  ansible.builtin.file:
+    path: /swapfile
+    state: absent
+
+- name: Ensure no active swap entries
+  ansible.builtin.command: swapon --show
+  register: swap_status
+  changed_when: false

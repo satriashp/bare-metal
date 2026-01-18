@@ -1,0 +1,41 @@
+- name: Check crictl version
+  command: /usr/local/bin/crictl --version
+  register: crictl_version
+  failed_when: false
+  changed_when: false
+
+- name: Install crictl if not found
+  when: crictl_version.rc != 0
+  block:
+    # - name: Download crictl sha256 file
+    #   ansible.builtin.get_url:
+    #     url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.34.0/crictl-v1.34.0-linux-386.tar.gz.sha256"
+    #     dest: /tmp/crictl.sha256
+
+    # - name: Read sha256 value
+    #   ansible.builtin.command: "cat /tmp/crictl.sha256"
+    #   register: crictl_sha
+    #   changed_when: false
+
+    - name: Download crictl binary
+      ansible.builtin.get_url:
+        url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.34.0/crictl-v1.34.0-linux-amd64.tar.gz"
+        dest: /tmp/crictl-v1.34.0-linux-amd64.tar.gz
+        checksum: sha256:a8ff2a3edb37a98daf3aba7c3b284fe0aa5bff24166d896ab9ef64c8913c9f51
+
+    - name: Extract crictl tar file
+      ansible.builtin.unarchive:
+        src: /tmp/crictl-v1.34.0-linux-amd64.tar.gz
+        dest: /usr/local/bin/
+        remote_src: true
+
+    - name: Ensure /etc/crictl.yaml file exists
+      ansible.builtin.copy:
+        src: crictl.yaml
+        dest: /etc/crictl.yaml
+        mode: "0644"
+
+    - name: Cleanup
+      ansible.builtin.file:
+        path: /tmp/crictl-v1.34.0-linux-amd64.tar.gz
+        state: absent

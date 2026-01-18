@@ -1,0 +1,29 @@
+providers:
+  kubernetesIngress:
+    enabled: false
+  kubernetesGateway:
+    enabled: true
+
+ports:
+  websecure:
+    port: 443
+
+gateway:
+  listeners:
+    web:
+      namespacePolicy:
+        from: All
+
+    websecure:
+      protocol: HTTPS
+      port: 443
+      namespacePolicy:
+        from: All
+      certificateRefs:
+        - name: satriashp-cloud-tls
+          kind: Secret
+          group: ""
+
+logs:
+  access:
+    enabled: true

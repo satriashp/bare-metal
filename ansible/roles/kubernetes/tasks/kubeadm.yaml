@@ -1,0 +1,30 @@
+- name: Check kubeadm version
+  ansible.builtin.command: /usr/local/bin/kubeadm version
+  register: kubeadm_stat
+  failed_when: false
+  changed_when: false
+
+- name: Install kubeadm if not found
+  when: kubeadm_stat.rc != 0
+  block:
+    - name: Download kubeadm sha256 file
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm.sha256"
+        dest: /tmp/kubeadm.sha256
+
+    - name: Read sha256 value
+      ansible.builtin.command: "cat /tmp/kubeadm.sha256"
+      register: kubeadm_sha
+      changed_when: false
+
+    - name: Download kubeadm binary
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubeadm"
+        dest: /usr/local/bin/kubeadm
+        mode: "0755"
+        checksum: "sha256:{{ kubeadm_sha.stdout }}"
+
+    - name: Cleanup
+      ansible.builtin.file:
+        path: /tmp/kubeadm.sha256
+        state: absent

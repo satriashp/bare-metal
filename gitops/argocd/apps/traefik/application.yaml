@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: bare-metal
+  source:
+    path: gitops/argocd/apps/traefik
+    repoURL: https://github.com/satriashp/bare-metal.git
+    targetRevision: main
+
+  destination:
+    name: "in-cluster"
+    namespace: traefik
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for cri
+- name: restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted

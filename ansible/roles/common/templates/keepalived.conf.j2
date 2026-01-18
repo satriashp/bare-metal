@@ -1,0 +1,33 @@
+global_defs {
+    router_id K8S_NODE_1
+}
+
+# Health check for kube-apiserver
+vrrp_script apiserver_health_check {
+    script "/etc/keepalived/check_apiserver.sh"
+    interval 2
+    weight -15
+    fall 2
+    rise 3
+}
+
+vrrp_instance VI_1 {
+    state BACKUP                # BACKUP on other nodes in HA
+    interface {{ ansible_facts.default_ipv4.interface }}         # your real NIC
+    virtual_router_id 51        # VRRP group ID
+    priority 100                # highest = MASTER
+    advert_int 1
+
+    authentication {
+        auth_type PASS
+        auth_pass password      # same for all HA nodes
+    }
+
+    virtual_ipaddress {
+        {{ keepalived_virtual_ip_address }}        # your VIP
+    }
+
+    track_script {
+        apiserver_health_check
+    }
+}

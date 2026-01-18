@@ -1,0 +1,30 @@
+- name: Check kubectl version
+  ansible.builtin.command: /usr/local/bin/kubectl version --client
+  register: kubectl_stat
+  failed_when: false
+  changed_when: false
+
+- name: Install kubectl if not found
+  when: kubectl_stat.rc != 0
+  block:
+    - name: Download kubectl sha256 file
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubectl.sha256"
+        dest: /tmp/kubectl.sha256
+
+    - name: Read sha256 value
+      ansible.builtin.command: "cat /tmp/kubectl.sha256"
+      register: kubectl_sha
+      changed_when: false
+
+    - name: Download kubectl binary
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: "0755"
+        checksum: "sha256:{{ kubectl_sha.stdout }}"
+
+    - name: Cleanup
+      ansible.builtin.file:
+        path: /tmp/kubectl.sha256
+        state: absent

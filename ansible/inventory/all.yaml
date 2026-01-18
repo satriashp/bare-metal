@@ -1,0 +1,12 @@
+all:
+  children:
+    control_plane_nodes:
+      hosts:
+        control-plane:
+          ansible_host: 192.168.0.200
+    worker_nodes:
+      hosts:
+        worker-node-01:
+          ansible_host: 192.168.0.201
+        worker-node-02:
+          ansible_host: 192.168.0.202

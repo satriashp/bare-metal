@@ -1,0 +1,29 @@
+- name: Install keepalived
+  ansible.builtin.apt:
+    name:
+      - keepalived
+    state: present
+    update_cache: yes
+
+- name: Copy check_apiserver.sh script to /etc/keepalived/ directory
+  ansible.builtin.copy:
+    src: files/check_apiserver.sh
+    dest: /etc/keepalived/check_apiserver.sh
+    mode: "0755"
+    owner: root
+    group: root
+
+- name: Configure keepalived.config file
+  ansible.builtin.template:
+    src: templates/keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Ensure keepalived running
+  ansible.builtin.systemd:
+    name: keepalived
+    state: started
+    enabled: true
+  failed_when: ansible_check_mode and false
