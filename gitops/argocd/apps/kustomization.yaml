@@ -3,4 +3,4 @@ resources:
   - certificates/application.yaml
   - metal-lb/application.yaml
   - traefik/application.yaml
-  - monitoring/application.yaml
+  # - monitoring/application.yaml
