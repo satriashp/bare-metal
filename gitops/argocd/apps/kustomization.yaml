@@ -1,4 +1,5 @@
 resources:
+  - namespaces/application.yaml
   - cert-manager/application.yaml
   - certificates/application.yaml
   - metal-lb/application.yaml
