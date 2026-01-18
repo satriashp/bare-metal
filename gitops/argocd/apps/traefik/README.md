@@ -7,4 +7,4 @@ helm template \
   --version 38.0.2 \
   --values values.override.yaml \
   --include-crds \
-  > traefik.yaml
+  > traefik-manifest.yaml

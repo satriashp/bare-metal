@@ -1,0 +1,25 @@
+crds:
+  enabled: true
+  upgradeJob:
+    enabled: true
+    forceConflicts: true
+
+grafana:
+  defaultDashboardsTimezone: Asia/Jakarta
+
+prometheus:
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          # accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 8Gi
+# kubeControllerManager:
+#   serviceMonitor:
+#     #  https://kubernetes.default.svc/api/v1/namespaces/kube-system/services/monitoring-kube-prometheus-kube-controller-manager
+#     proxyUrl: "https://kubernetes.default.svc/api/v1/namespaces/kube-system/services/monitoring-kube-prometheus-kube-controller-manager:http-metrics/proxy"
+#     # port: "6443"
+#     https: true

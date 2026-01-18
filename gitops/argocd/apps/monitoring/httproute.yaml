@@ -1,0 +1,114 @@
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-monitoring-from-traefik
+  namespace: monitoring
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: traefik
+  to:
+    - group: ""
+      kind: Service
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: monitoring-grafana
+  namespace: traefik
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      sectionName: websecure
+  hostnames:
+    - grafana.satriashp.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: monitoring-grafana
+          port: 80
+          weight: 1
+          namespace: monitoring
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: monitoring-grafana-redirect
+  namespace: traefik
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+      sectionName: web
+  hostnames:
+    - "grafana.satriashp.cloud"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: monitoring-prometheus
+  namespace: traefik
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      sectionName: websecure
+  hostnames:
+    - prometheus.satriashp.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: monitoring-kube-prometheus-prometheus
+          port: 9090
+          weight: 1
+          namespace: monitoring
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: monitoring-prometheus-redirect
+  namespace: traefik
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+      sectionName: web
+  hostnames:
+    - "prometheus.satriashp.cloud"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

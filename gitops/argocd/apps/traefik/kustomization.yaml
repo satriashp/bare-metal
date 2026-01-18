@@ -1,2 +1,2 @@
 resources:
-  - traefik.yaml
+  - traefik-manifest.yaml

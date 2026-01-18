@@ -25,3 +25,15 @@ metadata:
     pod-security.kubernetes.io/enforce: privileged
     pod-security.kubernetes.io/warn: privileged
   name: metallb-system
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: longhorn-system
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
