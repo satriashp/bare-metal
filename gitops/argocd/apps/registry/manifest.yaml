@@ -26,6 +26,9 @@ spec:
             - name: registry
               protocol: TCP
               containerPort: 5000
+          env:
+            - name: OTEL_TRACES_EXPORTER
+              value: none
           resources: {}
           volumeMounts:
             - name: registry
