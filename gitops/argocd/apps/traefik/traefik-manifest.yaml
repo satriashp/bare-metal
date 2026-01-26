@@ -19600,6 +19600,7 @@ metadata:
     helm.sh/chart: traefik-38.0.2
     app.kubernetes.io/managed-by: Helm
   annotations:
+    metallb.io/loadBalancerIPs: 192.168.0.240
 spec:
   type: LoadBalancer
   selector:
