@@ -7,3 +7,4 @@ resources:
   - longhorn/application.yaml
   - monitoring/application.yaml
   - registry/application.yaml
+  - games/

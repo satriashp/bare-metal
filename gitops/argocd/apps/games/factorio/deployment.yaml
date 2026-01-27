@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factorio
+  namespace: games
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      games: factorio
+  template:
+    metadata:
+      labels:
+        games: factorio
+    spec:
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+        runAsGroup: 1001
+        runAsNonRoot: true
+      volumes:
+        - name: factorio-saves
+          persistentVolumeClaim:
+            claimName: factorio-saves
+      containers:
+        - name: factorio
+          image: registry.satriashp.cloud/factorio:2.0.66
+          command:
+            - factorio/bin/x64/factorio
+          args:
+            - --start-server-load-latest
+            - --server-settings
+            - server-settings.json
+          imagePullPolicy: Always
+          tty: true
+          ports:
+            - name: factorio-port
+              protocol: UDP
+              containerPort: 34197
+          env:
+            - name: FACTORIO_SAVE
+              value: main.zip
+          resources: {}
+          volumeMounts:
+            - name: factorio-saves
+              mountPath: /work/factorio/saves/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: factorio
+  namespace: games
+  annotations:
+    metallb.io/address-pool: public-pool
+spec:
+  type: LoadBalancer
+  selector:
+    games: factorio
+  ports:
+    - name: factorio-port
+      protocol: UDP
+      targetPort: 34197
+      port: 34197
