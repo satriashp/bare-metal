@@ -3,8 +3,12 @@
   become: true
   gather_facts: true
   roles:
-    # - role: common
+    - role: common
+
     - role: consul
       consul_version: "1.22.3"
       consul_bootstrap: true
-    # - role: nomad
+
+    - role: nomad
+      nomad_version: "1.11.1"
+      nomad_bootstrap: true

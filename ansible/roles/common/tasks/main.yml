@@ -27,6 +27,7 @@
       - vim
       - unzip
       - jq
+      - dnsutils
       # - arptables
       # - ebtables
     state: present

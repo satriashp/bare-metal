@@ -92,3 +92,47 @@
         owner: consul
         group: consul
         mode: "0644"
+
+- name: Install consul systemd service
+  ansible.builtin.copy:
+    src: consul.service
+    dest: /etc/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart consul
+
+- name: Reload systemd daemon (consul)
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start consul
+  ansible.builtin.systemd:
+    name: consul
+    enabled: true
+    state: started
+
+- name: Install essential packages
+  ansible.builtin.apt:
+    name:
+      - dnsutils
+      - dnsmasq
+    state: present
+    update_cache: yes
+
+- name: Copy resolv.conf file
+  ansible.builtin.copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy 10-consul.conf file for dnsmasq
+  ansible.builtin.copy:
+    src: 10-consul.conf
+    dest: /etc/dnsmasq.d/10-consul.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart dnsmasq

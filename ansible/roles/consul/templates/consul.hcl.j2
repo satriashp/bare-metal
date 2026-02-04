@@ -4,7 +4,7 @@ bind_addr  = "{{ ansible_host }}"
 client_addr = "0.0.0.0"
 
 server = true
-bootstrap_expect = 3
+bootstrap_expect = {{ groups['all'] | length }}
 
 retry_join = {{ consul_retry_join | to_nice_json }}
 
@@ -18,4 +18,5 @@ connect {
 
 ports {
   grpc = 8502
+  dns = 8600
 }
