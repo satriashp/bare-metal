@@ -1,0 +1,7 @@
+site_name: Bare Metal Kubernetes Lab
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
