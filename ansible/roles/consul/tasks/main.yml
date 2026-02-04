@@ -1,0 +1,138 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for consul
+
+- name: Check existing consul version
+  command: /usr/local/bin/consul --version
+  register: consul_version_output
+  failed_when: false
+  changed_when: false
+
+- name: Install consule when not exists
+  when: "consul_version not in consul_version_output.stdout"
+  block:
+    - name: Download binary
+      ansible.builtin.get_url:
+        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+        dest: /tmp/consul.zip
+        mode: "0644"
+
+    - name: Make tmp directory
+      ansible.builtin.file:
+        path: /tmp/consul
+        state: directory
+
+    - name: Extract zip file
+      ansible.builtin.unarchive:
+        src: /tmp/consul.zip
+        dest: /tmp/consul
+        remote_src: true
+
+    - name: Copy binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: /tmp/consul/consul
+        dest: /usr/local/bin/consul
+        remote_src: true
+        mode: "0755"
+
+    - name: Remove downloaded zip
+      ansible.builtin.file:
+        path: /tmp/consul.zip
+        state: absent
+
+    - name: Remove tmp consul folder
+      ansible.builtin.file:
+        path: /tmp/consul
+        state: absent
+
+- name: Create consul group
+  ansible.builtin.group:
+    name: consul
+    system: true
+    state: present
+
+- name: Create consul user
+  ansible.builtin.user:
+    name: consul
+    group: consul
+    system: true
+    shell: /usr/sbin/nologin
+    # home: /etc/consul.d
+    create_home: false
+    state: present
+
+- name: Bootstrap consul agent
+  when: "consul_bootstrap"
+  block:
+    - name: Create directory /etc/consul.d
+      ansible.builtin.file:
+        path: /etc/consul.d
+        owner: consul
+        group: consul
+        mode: "0750"
+        state: directory
+
+    - name: Create directory /opt/consul
+      ansible.builtin.file:
+        path: /opt/consul
+        owner: consul
+        group: consul
+        mode: "0744"
+        state: directory
+
+    - name: Build retry_join list
+      set_fact:
+        consul_retry_join: >-
+          {{ groups['all'] | map('extract', hostvars, 'ansible_host') | list }}
+
+    - name: Generate consul config file
+      ansible.builtin.template:
+        src: templates/consul.hcl.j2
+        dest: /etc/consul.d/consul.hcl
+        owner: consul
+        group: consul
+        mode: "0644"
+
+- name: Install consul systemd service
+  ansible.builtin.copy:
+    src: consul.service
+    dest: /etc/systemd/system/consul.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart consul
+
+- name: Reload systemd daemon (consul)
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start consul
+  ansible.builtin.systemd:
+    name: consul
+    enabled: true
+    state: started
+
+- name: Install essential packages
+  ansible.builtin.apt:
+    name:
+      - dnsutils
+      - dnsmasq
+    state: present
+    update_cache: yes
+
+- name: Copy resolv.conf file
+  ansible.builtin.copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Copy 10-consul.conf file for dnsmasq
+  ansible.builtin.copy:
+    src: 10-consul.conf
+    dest: /etc/dnsmasq.d/10-consul.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart dnsmasq

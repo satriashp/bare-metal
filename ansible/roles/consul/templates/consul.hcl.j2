@@ -1,0 +1,22 @@
+datacenter = "dc1"
+data_dir   = "/opt/consul"
+bind_addr  = "{{ ansible_host }}"
+client_addr = "0.0.0.0"
+
+server = true
+bootstrap_expect = {{ groups['all'] | length }}
+
+retry_join = {{ consul_retry_join | to_nice_json }}
+
+ui_config {
+  enabled = true
+}
+
+connect {
+  enabled = true
+}
+
+ports {
+  grpc = 8502
+  dns = 8600
+}

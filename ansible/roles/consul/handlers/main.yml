@@ -1,0 +1,13 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for consul
+
+- name: Restart consul
+  ansible.builtin.systemd:
+    name: consul
+    state: restarted
+
+- name: Restart dnsmasq
+  ansible.builtin.systemd:
+    name: dnsmasq
+    state: restarted

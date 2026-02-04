@@ -25,6 +25,9 @@
     name:
       - iptables
       - vim
+      - unzip
+      - jq
+      - dnsutils
       # - arptables
       # - ebtables
     state: present
