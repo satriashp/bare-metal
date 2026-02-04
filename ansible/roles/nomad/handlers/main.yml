@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# handlers file for nomad
+
+- name: Restart nomad
+  ansible.builtin.systemd:
+    name: nomad
+    state: restarted

@@ -1,0 +1,19 @@
+datacenter = "dc1"
+data_dir   = "/opt/nomad/data"
+bind_addr  = "0.0.0.0"
+
+server {
+  enabled          = true
+  bootstrap_expect = {{ groups['all'] | length }}
+}
+
+client {
+  enabled = true
+  network_interface = "{{ ansible_default_ipv4.interface }}"
+}
+
+consul {
+  address = "127.0.0.1:8500"
+}
+
+plugin "exec" {}

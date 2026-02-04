@@ -1,0 +1,107 @@
+#SPDX-License-Identifier: MIT-0
+---
+# tasks file for nomad
+
+- name: Check existing nomad version
+  command: /usr/local/bin/nomad --version
+  register: nomad_version_output
+  failed_when: false
+  changed_when: false
+
+- name: Instance nomad when not exists
+  when: "nomad_version not in nomad_version_output"
+  block:
+    - name: Download binary
+      ansible.builtin.get_url:
+        url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_linux_amd64.zip"
+        dest: /tmp/nomad.zip
+        mode: "0644"
+
+    - name: Make tmp directory
+      ansible.builtin.file:
+        path: /tmp/nomad
+        state: directory
+
+    - name: Extract zip file
+      ansible.builtin.unarchive:
+        src: /tmp/nomad.zip
+        dest: /tmp/nomad
+        remote_src: true
+
+    - name: Copy binary to /usr/local/bin
+      ansible.builtin.copy:
+        src: /tmp/nomad/nomad
+        dest: /usr/local/bin/nomad
+        remote_src: true
+        mode: "0755"
+
+    - name: Remove downloaded zip
+      ansible.builtin.file:
+        path: /tmp/nomad.zip
+        state: absent
+
+    - name: Remove tmp nomad folder
+      ansible.builtin.file:
+        path: /tmp/nomad
+        state: absent
+
+- name: Create nomad group
+  ansible.builtin.group:
+    name: nomad
+    system: true
+    state: present
+
+- name: Create nomad user
+  ansible.builtin.user:
+    name: nomad
+    group: nomad
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+    state: present
+
+- name: Bootstrap nomad agent
+  when: "nomad_bootstrap"
+  block:
+    - name: Create directory /etc/nomad.d
+      ansible.builtin.file:
+        path: /etc/nomad.d
+        owner: nomad
+        group: nomad
+        mode: "0750"
+        state: directory
+
+    - name: Create directory /opt/nomad/data
+      ansible.builtin.file:
+        path: /opt/nomad/data
+        owner: nomad
+        group: nomad
+        mode: "0744"
+        state: directory
+
+    - name: Generate nomad config file
+      ansible.builtin.template:
+        src: templates/nomad.hcl.j2
+        dest: /etc/nomad.d/nomad.hcl
+        owner: nomad
+        group: nomad
+        mode: "0644"
+
+- name: Install nomad systemd service
+  ansible.builtin.copy:
+    src: nomad.service
+    dest: /etc/systemd/system/nomad.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart nomad
+
+- name: Reload systemd daemon (nomad)
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start nomad
+  ansible.builtin.systemd:
+    name: nomad
+    enabled: true
+    state: started
