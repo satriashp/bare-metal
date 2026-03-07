@@ -4,6 +4,7 @@ resources:
   - certificates/application.yaml
   - metal-lb/application.yaml
   - traefik/application.yaml
+  - external-dns/application.yaml
   - longhorn/application.yaml
   - monitoring/application.yaml
   - registry/application.yaml
