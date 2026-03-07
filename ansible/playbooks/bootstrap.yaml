@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Bootstrap bare-metal nodes
+  hosts: all
   become: true
   gather_facts: true
   roles:
@@ -8,5 +9,5 @@
     - role: cri
       cri_type: "containerd"
 
-    - role:  kubernetes
+    - role: kubernetes
       kubernetes_version: v1.34.2

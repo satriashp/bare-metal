@@ -3,7 +3,7 @@
 # tasks file for consul
 
 - name: Check existing consul version
-  command: /usr/local/bin/consul --version
+  shell: "/usr/local/bin/consul --version | awk 'NR==1 { gsub('v', '', $2); print $2 }'"
   register: consul_version_output
   failed_when: false
   changed_when: false
@@ -92,6 +92,7 @@
         owner: consul
         group: consul
         mode: "0644"
+      notify: Restart consul
 
 - name: Install consul systemd service
   ansible.builtin.copy:

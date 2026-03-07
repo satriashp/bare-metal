@@ -1,0 +1,28 @@
+- name: Create tls directory
+  ansible.builtin.file:
+    path: /etc/nomad.d/tls
+    state: directory
+
+- name: Copy nomad-agent-ca.pem
+  ansible.builtin.copy:
+    src: nomad-agent-ca.pem
+    dest: /etc/nomad.d/tls/nomad-agent-ca.pem
+    owner: nomad
+    group: nomad
+    mode: "0644"
+
+- name: Copy global-server-nomad.pem
+  ansible.builtin.copy:
+    src: global-server-nomad.pem
+    dest: /etc/nomad.d/tls/global-server-nomad.pem
+    owner: nomad
+    group: nomad
+    mode: "0644"
+
+- name: Copy global-server-nomad-key.pem
+  ansible.builtin.copy:
+    src: global-server-nomad-key.pem
+    dest: /etc/nomad.d/tls/global-server-nomad-key.pem
+    owner: nomad
+    group: nomad
+    mode: "0644"

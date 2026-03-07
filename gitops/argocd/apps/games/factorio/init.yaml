@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factorio-init
+  namespace: games
+spec:
+  strategy:
+    type: Recreate
+  replicas: 0
+  selector:
+    matchLabels:
+      games: factorio-init
+  template:
+    metadata:
+      labels:
+        games: factorio-init
+    spec:
+      volumes:
+        - name: factorio-saves
+          persistentVolumeClaim:
+            claimName: factorio-saves
+      containers:
+        - name: factorio
+          image: busybox
+          tty: true
+          resources: {}
+          volumeMounts:
+            - name: factorio-saves
+              mountPath: /work/saves/

@@ -3,13 +3,17 @@
 # tasks file for nomad
 
 - name: Check existing nomad version
-  command: /usr/local/bin/nomad --version
+  shell: "/usr/local/bin/nomad --version | awk 'NR==1 { gsub('v', '', $2); print $2 }'"
   register: nomad_version_output
   failed_when: false
   changed_when: false
 
+- name: Debug installed version
+  debug:
+    msg: "Installed: {{ nomad_version_output.stdout }}"
+
 - name: Instance nomad when not exists
-  when: "nomad_version not in nomad_version_output"
+  when: "nomad_version != nomad_version_output.stdout"
   block:
     - name: Download binary
       ansible.builtin.get_url:
@@ -86,6 +90,7 @@
         owner: nomad
         group: nomad
         mode: "0644"
+      notify: Restart nomad
 
 - name: Install nomad systemd service
   ansible.builtin.copy:

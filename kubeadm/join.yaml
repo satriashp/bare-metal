@@ -5,9 +5,9 @@ discovery:
   bootstrapToken:
     apiServerEndpoint: "k8s.satriashp.cloud:6443" # API Server endpoint
     # token and caCerthasts that print after kubeadm init on control-plane node
-    token: k4lbpr.r4enjx8ao7kt5qyo # change with appropiate value
+    token: xp4ico.0fvt9c0dlyif3d55 # change with appropiate value
     caCertHashes:
-      - sha256:9d78bc6042a5226b20c423c67c2b96c3f61232f781110e92b8d7dd2af9b1f5f9 # change with appropiate value
+      - sha256:bb2467f793ee16241df0b3395bd0d82287da92d20c4d7c5d3161161c09f0c59c # change with appropiate value
 # nodeRegistration:
 #   kubeletExtraArgs:
 #     # ip address of current node
