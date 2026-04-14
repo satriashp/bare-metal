@@ -1,9 +1,11 @@
-#SPDX-License-Identifier: MIT-0
+# SPDX-License-Identifier: MIT-0
 ---
 # tasks file for common
-- import_tasks: disable-swap.yaml
+- name: Disable swap
+  ansible.builtin.include_tasks: disable-swap.yaml
 
 - name: Configure hostname and hosts
+  become: true
   block:
     - name: Set hostname
       ansible.builtin.hostname:
@@ -15,20 +17,63 @@
         line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
         regexp: "{{ inventory_hostname }}"
 
-  become: true
-
-- import_tasks: keepalived.yaml
+- name: Install keepalived tools on control-plane node
+  ansible.builtin.include_tasks: keepalived.yaml
   when: inventory_hostname in groups['control_plane_nodes']
 
 - name: Install essential packages
-  ansible.builtin.apt:
-    name:
-      - iptables
-      - vim
-      - unzip
-      - jq
-      - dnsutils
-      # - arptables
-      # - ebtables
-    state: present
-    update_cache: yes
+  block:
+    - name: Debian
+      when: ansible_facts['os_family'] == 'Debian'
+      ansible.builtin.apt:
+        name:
+          - iptables
+          - vim
+          - unzip
+          - jq
+          - dnsutils
+          # - arptables
+          # - ebtables
+        state: present
+        update_cache: true
+
+    - name: Redhat
+      when: ansible_facts['os_family'] == 'Redhat'
+      ansible.builtin.dnf:
+        name:
+          - vim
+          - unzip
+          - jq
+          - dnsutils
+        state: present
+        update_cache: true
+
+- name: Fix missing /run/systemd/resolve/resolv.conf on RHEL
+  become: true
+  when: ansible_facts['os_family'] == 'Redhat'
+  block:
+    - name: Ensure /run/systemd/resolve directory exists
+      ansible.builtin.file:
+        path: /run/systemd/resolve
+        state: directory
+        mode: '0755'
+
+    - name: Create symlink from /etc/resolv.conf to /run/systemd/resolve/resolv.conf
+      ansible.builtin.file:
+        src: /etc/resolv.conf
+        dest: /run/systemd/resolve/resolv.conf
+        state: link
+        force: true
+
+    - name: Make symlink persistent using tmpfiles.d
+      ansible.builtin.copy:
+        dest: /etc/tmpfiles.d/systemd-resolv.conf.conf
+        content: "L /run/systemd/resolve/resolv.conf - - - - /etc/resolv.conf\n"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Apply tmpfiles to recreate symlink on boot
+      ansible.builtin.command: systemd-tmpfiles --create /etc/tmpfiles.d/systemd-resolv.conf.conf
+      changed_when: false

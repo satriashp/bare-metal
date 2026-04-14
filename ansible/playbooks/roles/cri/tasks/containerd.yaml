@@ -1,11 +1,11 @@
 - name: Check containerd version
-  command: /usr/local/bin/containerd --version
-  register: containerd_version
+  ansible.builtin.command: /usr/local/bin/containerd --version
+  register: cri_containerd_version
   failed_when: false
   changed_when: false
 
 - name: Install containerd when version mismatch
-  when: "cri_version not in containerd_version.stdout"
+  when: "cri_version not in cri_containerd_version.stdout"
   block:
     - name: Download binary for containerd
       ansible.builtin.get_url:
@@ -29,12 +29,12 @@
 
     - name: Reload systemd
       ansible.builtin.systemd:
-        daemon_reload: yes
+        daemon_reload: true
 
     - name: Enable and start containerd.service
       ansible.builtin.systemd:
         name: containerd
-        enabled: yes
+        enabled: true
         state: started
       failed_when: ansible_check_mode and false
 
@@ -44,22 +44,24 @@
         state: absent
 
 - name: Check runc version
-  command: /usr/local/sbin/runc --version
-  register: runc_check
+  ansible.builtin.command: /usr/local/sbin/runc --version
+  register: cri_runc_check
   failed_when: false
   changed_when: false
 
 - name: Install runc when runc not found
-  when: runc_check.rc != 0
+  when: cri_runc_check.rc != 0
   block:
     - name: Download runc binary
       ansible.builtin.get_url:
         url: https://github.com/opencontainers/runc/releases/download/v1.3.3/runc.{{ cri_arch }}
         dest: /tmp/runc.{{ cri_arch }}
         checksum: sha256:8781ab9f71c12f314d21c8e85f13ca1a82d90cf475aa5131a7b543fcc5487543
+        mode: "0755"
 
     - name: Installed at /usr/local/sbin/runc
       ansible.builtin.command: install -m 755 /tmp/runc.{{ cri_arch }} /usr/local/sbin/runc
+      changed_when: false
 
     - name: Cleanup archive
       ansible.builtin.file:
@@ -69,21 +71,23 @@
 - name: Check cni plugins Installed
   ansible.builtin.stat:
     path: /opt/cni/bin
-  register: cni_path
+  register: cri_cni_path
 
 - name: Install cni plugin
-  when: not cni_path.stat.exists
+  when: not cri_cni_path.stat.exists
   block:
     - name: Create /opt/cni/bin directory
       ansible.builtin.file:
         path: /opt/cni/bin
         state: directory
+        mode: "0755"
 
     - name: Download cni binary
       ansible.builtin.get_url:
         url: https://github.com/containernetworking/plugins/releases/download/v1.8.0/cni-plugins-linux-amd64-v1.8.0.tgz
         dest: /tmp/cni-plugins-linux-amd64-v1.8.0.tgz
         checksum: sha256:ab3bda535f9d90766cccc90d3dddb5482003dd744d7f22bcf98186bf8eea8be6
+        mode: "0644"
 
     - name: Extract archive file
       ansible.builtin.unarchive:
@@ -100,26 +104,28 @@
 - name: Check current config.toml file
   ansible.builtin.stat:
     path: /etc/containerd/config.toml
-  register: containerd_config
+  register: cri_containerd_config
 
 - name: Generate default config.toml file
-  when: not containerd_config.stat.exists
+  when: not cri_containerd_config.stat.exists
   block:
     - name: Ensure containerd config directory exists
       ansible.builtin.file:
         path: /etc/containerd
         state: directory
+        mode: "0755"
 
     - name: Get default containerd config
       ansible.builtin.command: /usr/local/bin/containerd config default
-      register: default_config
+      register: cri_default_config
+      changed_when: false
 
     - name: Write containerd config file
       ansible.builtin.copy:
         dest: /etc/containerd/config.toml
         mode: "0644"
         content: |
-          {{ default_config.stdout }}
+          {{ cri_default_config.stdout }}
 
 - name: Ensure systemd option are enabled
   ansible.builtin.lineinfile:

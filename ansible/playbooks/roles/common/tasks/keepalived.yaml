@@ -3,7 +3,7 @@
     name:
       - keepalived
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Copy check_apiserver.sh script to /etc/keepalived/ directory
   ansible.builtin.copy:

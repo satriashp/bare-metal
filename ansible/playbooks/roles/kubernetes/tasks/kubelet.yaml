@@ -1,28 +1,29 @@
 - name: Check kubelet version
   ansible.builtin.command: /usr/local/bin/kubelet --version
-  register: kubelet_stat
+  register: kubernetes_kubelet_stat
   failed_when: false
   changed_when: false
 
 - name: Install kubelet if not found
-  when: kubelet_stat.rc != 0
+  when: kubernetes_kubelet_stat.rc != 0
   block:
     - name: Download sha26 file
       ansible.builtin.get_url:
-        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubelet.sha256"
+        url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubelet.sha256"
         dest: /tmp/kubelet.sha256
+        mode: "0644"
 
     - name: Read sha256 value
       ansible.builtin.command: "cat /tmp/kubelet.sha256"
-      register: kubelet_sha
+      register: kubernetes_kubelet_sha
       changed_when: false
 
     - name: Download kubelet binary
       ansible.builtin.get_url:
-        url: "https://dl.k8s.io/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubelet"
+        url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ kubernetes_arch }}/kubelet"
         dest: /usr/local/bin/kubelet
         mode: "0755"
-        checksum: "sha256:{{ kubelet_sha.stdout }}"
+        checksum: "sha256:{{ kubernetes_kubelet_sha.stdout }}"
 
     - name: Cleanup
       ansible.builtin.file:
@@ -32,28 +33,31 @@
 - name: Check kubelet.service are enabled
   ansible.builtin.systemd:
     name: kubelet
-    enabled: yes
-  register: kubelet_service
+    enabled: true
+  register: kubernetes_kubelet_service
   failed_when: false
   changed_when: false
 
 - name: Ensure kubelet.service enable
-  when: kubelet_service.status is not defined
+  when: kubernetes_kubelet_service.status is not defined
   block:
     - name: Ensure systemd unit for kubelet exists
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/kubernetes/release/v0.16.2/cmd/krel/templates/latest/kubelet/kubelet.service
         dest: /usr/lib/systemd/system/kubelet.service
+        mode: "0644"
 
     - name: Ensure /usr/lib/systemd/system/kubelet.service.d folder exists
       ansible.builtin.file:
         path: /usr/lib/systemd/system/kubelet.service.d
         state: directory
+        mode: "0644"
 
     - name: Download kubelet service dropin file
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/kubernetes/release/v0.16.2/cmd/krel/templates/latest/kubeadm/10-kubeadm.conf
         dest: /usr/lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+        mode: "0644"
       when: not ansible_check_mode
 
     - name: Ensure systemd unit point to correct binary
@@ -73,5 +77,5 @@
     - name: Ensure kubelet service is enabled
       ansible.builtin.systemd:
         name: kubelet
-        enabled: yes
+        enabled: true
       failed_when: ansible_check_mode and false

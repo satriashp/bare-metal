@@ -1,4 +1,3 @@
-#SPDX-License-Identifier: MIT-0
 ---
 # tasks file for consul
 
@@ -21,6 +20,7 @@
       ansible.builtin.file:
         path: /tmp/consul
         state: directory
+        mode: "0644"
 
     - name: Extract zip file
       ansible.builtin.unarchive:
@@ -81,7 +81,7 @@
         state: directory
 
     - name: Build retry_join list
-      set_fact:
+      ansible.builtin.set_fact:
         consul_retry_join: >-
           {{ groups['all'] | map('extract', hostvars, 'ansible_host') | list }}
 
@@ -119,7 +119,7 @@
       - dnsutils
       - dnsmasq
     state: present
-    update_cache: yes
+    update_cache: true
 
 - name: Copy resolv.conf file
   ansible.builtin.copy:
