@@ -46,7 +46,7 @@ func GetTodos(w http.ResponseWriter, r *http.Request) {
 
 func Healthz(w http.ResponseWriter, r *http.Request) {
   w.WriteHeader(http.StatusOK)
-  w.Write([]byte("healthy"))
+  w.Write([]byte("OK: healthy"))
 }
 
 func Readyz(w http.ResponseWriter, r *http.Request) {
