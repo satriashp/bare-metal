@@ -16,7 +16,7 @@ prometheus:
           # accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 8Gi
+              storage: 16Gi
 # kubeControllerManager:
 #   serviceMonitor:
 #     #  https://kubernetes.default.svc/api/v1/namespaces/kube-system/services/monitoring-kube-prometheus-kube-controller-manager
