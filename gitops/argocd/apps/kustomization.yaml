@@ -10,3 +10,4 @@ resources:
   - registry/application.yaml
   - games/
   - blackbox-exporter/application.yaml
+  - cnpg/application.yaml
