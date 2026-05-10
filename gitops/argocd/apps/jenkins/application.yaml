@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: registry
+  name: jenkins
   annotations:
     argocd.argoproj.io/sync-wave: "5"
 spec:
   project: bare-metal
   source:
-    path: gitops/argocd/apps/registry
+    path: gitops/argocd/apps/jenkins
     repoURL: https://github.com/satriashp/bare-metal.git
     targetRevision: main
 

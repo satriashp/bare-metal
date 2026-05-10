@@ -11,3 +11,4 @@ resources:
   - games/
   - blackbox-exporter/application.yaml
   - cnpg/application.yaml
+  - jenkins/application.yaml

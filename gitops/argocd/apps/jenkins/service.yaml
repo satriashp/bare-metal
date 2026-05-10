@@ -1,0 +1,110 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins-service
+  namespace: devops-tools
+  annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/path: /
+      prometheus.io/port: '8080'
+spec:
+  selector:
+    app: jenkins-server
+  type: ClusterIP
+  ports:
+    - name: httpport
+      port: 8080
+      targetPort: 8080
+    - name: jnlpport
+      port: 50000
+      targetPort: 50000
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: devops-tools-from-traefik
+  namespace: devops-tools
+spec:
+  from:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: traefik
+  to:
+    - group: ""
+      kind: Service
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jenkins
+  namespace: traefik
+spec:
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: traefik-gateway
+      sectionName: websecure
+  hostnames:
+    - jenkins.satriashp.cloud
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        # - type: RequestHeaderModifier
+        #   requestHeaderModifier:
+        #     set:
+        #     - name: X-Forwarded-Host
+        #       value: "jenkins.satriashp.cloud"
+        #     - name: X-Forwarded-Proto
+        #       value: "https"
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: jenkins-reverse-proxy
+      backendRefs:
+        - group: ""
+          kind: Service
+          name: jenkins-service
+          port: 8080
+          weight: 1
+          namespace: devops-tools
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: jenkins-redirect
+  namespace: traefik
+spec:
+  parentRefs:
+    - name: traefik-gateway
+      kind: Gateway
+      group: gateway.networking.k8s.io
+      sectionName: web
+  hostnames:
+    - "jenkins.satriashp.cloud"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: jenkins-reverse-proxy
+  namespace: traefik
+spec:
+  headers:
+    customRequestHeaders:
+      X-Forwarded-Proto: "https"
+      X-Forwarded-Host: "jenkins.satriashp.cloud"
+      X-Forwarded-Port: "443"
+      Host: "jenkins.satriashp.cloud"
