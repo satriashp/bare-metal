@@ -27,6 +27,16 @@ func CreateTodo(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTodos(w http.ResponseWriter, r *http.Request) {
+  // --- ADD THIS LOGGING BLOCK ---
+  fmt.Println("--- Incoming Request Headers ---")
+  for name, values := range r.Header {
+      for _, value := range values {
+          fmt.Printf("%s: %s\n", name, value)
+      }
+  }
+  fmt.Println("-------------------------------")
+  // --- END LOGGING BLOCK ---
+
   rows, err := DB.Query("SELECT id, text, done FROM todos")
   if err != nil {
     http.Error(w, err.Error(), 500)

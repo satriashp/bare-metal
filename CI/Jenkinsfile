@@ -1,0 +1,41 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug
+    command:
+      - /busybox/cat
+    tty: true
+"""
+    }
+  }
+
+  stages {
+    stage('Build main') {
+      when {
+        branch 'main'
+      }
+
+      steps {
+        dir('demo/backend-todo') {
+          container('kaniko') {
+            sh '''
+              /kaniko/executor --context=. \
+              --image-fs-extract-retry=5 \
+              --cache=true \
+              --cache-ttl=168h \
+              --cache-repo=registry.satriashp.cloud/kaniko-cache \
+              --compressed-caching=false \
+              --destination=registry.satriashp.cloud/backend-todo:0.1.0
+            '''
+          }
+        }
+      }
+    }
+  }
+}

@@ -14,7 +14,7 @@
     - name: Ensure hostname resolvable
       ansible.builtin.lineinfile:
         path: /etc/hosts
-        line: "{{ ansible_default_ipv4.address }} {{ inventory_hostname }}"
+        line: "{{ ansible_facts.default_ipv4.address }} {{ inventory_hostname }}"
         regexp: "{{ inventory_hostname }}"
 
 - name: Install keepalived tools on control-plane node

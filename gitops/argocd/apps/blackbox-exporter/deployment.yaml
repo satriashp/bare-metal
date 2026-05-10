@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+  labels:
+    app: blackbox-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blackbox-exporter
+  template:
+    metadata:
+      labels:
+        app: blackbox-exporter
+    spec:
+      containers:
+        - name: blackbox-exporter
+          image: quay.io/prometheus/blackbox-exporter:latest
+          securityContext:
+            capabilities:
+              add: [ NEW_RAW ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackbox-exporter
+  namespace: monitoring
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9115
+      targetPort: 9115
+      protocol: TCP
+  selector:
+    app: blackbox-exporter
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: internet-icmp
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  jobName: blackbox-icmp
+  interval: 15s
+
+  module: icmp
+
+  prober:
+    url: blackbox-exporter.monitoring.svc:9115
+
+  targets:
+    staticConfig:
+      static:
+        - 8.8.8.8
+        - 8.8.4.4
+        - 1.1.1.1
+        - 1.0.0.2
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: internet-http
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  jobName: blackbox-http
+  interval: 30s
+
+  module: http_2xx
+
+  prober:
+    url: blackbox-exporter.monitoring.svc:9115
+
+  targets:
+    staticConfig:
+      static:
+        - https://google.com
+        - https://cloudflare.com

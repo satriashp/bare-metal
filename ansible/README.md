@@ -25,6 +25,16 @@ libffi-dev \
 liblzma-dev \
 python3-openssl
 
+# Install pyenv
+
+curl -fsSL https://pyenv.run | bash
+
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(pyenv init - zsh)"' >> ~/.zshrc
+
+exec "$SHELL"
+
 # Install python 3.12
 
 pyenv install 3.12

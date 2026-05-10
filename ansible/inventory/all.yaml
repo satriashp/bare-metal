@@ -8,7 +8,5 @@ all:
       hosts:
         worker-node-01:
           ansible_host: 192.168.0.201
-          ansible_user: k8s
         worker-node-02:
           ansible_host: 192.168.0.202
-          ansible_user: k8s
