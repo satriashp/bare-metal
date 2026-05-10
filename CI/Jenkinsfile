@@ -15,6 +15,10 @@ spec:
     }
   }
 
+  options {
+    ansiColor('xterm')
+  }
+
   stages {
     stage('Build main') {
       when {
