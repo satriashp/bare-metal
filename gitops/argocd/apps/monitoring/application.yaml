@@ -15,6 +15,9 @@ spec:
     name: "in-cluster"
 
   syncPolicy:
+    syncPolicy:
+      syncOptions:
+        - ServerSideApply=true
     automated:
       prune: true
       selfHeal: true
