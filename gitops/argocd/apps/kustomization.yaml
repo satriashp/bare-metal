@@ -9,3 +9,4 @@ resources:
   - monitoring/application.yaml
   - registry/application.yaml
   - games/
+  - blackbox-exporter/application.yaml
