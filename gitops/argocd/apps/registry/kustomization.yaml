@@ -1,3 +1,4 @@
 resources:
   - manifest.yaml
   - httproute.yaml
+  - registry-ui.yaml
