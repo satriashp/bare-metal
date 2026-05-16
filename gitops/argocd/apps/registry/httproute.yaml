@@ -27,7 +27,7 @@ spec:
       backendRefs:
         - group: ""
           kind: Service
-          name: registry
+          name: registry-ui
           port: 80
           weight: 1
           namespace: registry
@@ -78,7 +78,7 @@ metadata:
 spec:
   headers:
     customRequestHeaders:
-      Access-Control-Allow-Origin: '[https://registry-ui.satriashp.cloud]'
+      Access-Control-Allow-Origin: '[https://registry.satriashp.cloud]'
       Access-Control-Allow-Methods: '[HEAD,GET,OPTIONS,DELETE]'
       Access-Control-Allow-Credentials: '[true]'
       Access-Control-Allow-Headers: '[Authorization,Accept,Cache-Control]'
