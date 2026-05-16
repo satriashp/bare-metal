@@ -17,6 +17,13 @@ spec:
         - path:
             type: PathPrefix
             value: /
+
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: registry-custom-headers
       backendRefs:
         - group: ""
           kind: Service
@@ -62,3 +69,17 @@ spec:
   to:
     - group: ""
       kind: Service
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: registry-custom-headers
+  namespace: traefik
+spec:
+  headers:
+    customRequestHeaders:
+      Access-Control-Allow-Origin: '[https://registry-ui.satriashp.cloud,http://localhost:8080]'
+      Access-Control-Allow-Methods: '[HEAD,GET,OPTIONS,DELETE]'
+      Access-Control-Allow-Credentials: '[true]'
+      Access-Control-Allow-Headers: '[Authorization,Accept,Cache-Control]'
+      Access-Control-Expose-Headers: '[Docker-Content-Digest]'
