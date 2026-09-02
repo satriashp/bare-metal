@@ -4,7 +4,7 @@ kubectl create namespace "argocd"
 
 # Install core component
 
-kubectl apply -n "argocd" -f ./gitOps/argocd/core-install-v3.2.5.yaml
+kubectl apply -n "argocd" -f ./gitops/argocd/core-install-v3.2.5.yaml
 
 # Generate key secret
 
