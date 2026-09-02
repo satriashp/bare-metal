@@ -3,10 +3,10 @@ all:
     control_plane_nodes:
       hosts:
         control-plane:
-          ansible_host: 192.168.0.200
+          ansible_host: 10.0.1.1
     worker_nodes:
       hosts:
         worker-node-01:
-          ansible_host: 192.168.0.201
+          ansible_host: 10.0.1.2
         worker-node-02:
-          ansible_host: 192.168.0.202
+          ansible_host: 10.0.1.3

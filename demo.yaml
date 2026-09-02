@@ -55,7 +55,7 @@ spec:
       name: traefik-gateway
       sectionName: websecure
   hostnames:
-    - web.satriashp.cloud
+    - web.satriashp.site
   rules:
     - matches:
         - path:
@@ -81,7 +81,7 @@ spec:
       group: gateway.networking.k8s.io
       sectionName: web
   hostnames:
-    - "web.satriashp.cloud"
+    - "web.satriashp.site"
   rules:
     - matches:
         - path:

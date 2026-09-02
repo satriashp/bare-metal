@@ -33,9 +33,9 @@ spec:
               --image-fs-extract-retry=5 \
               --cache=true \
               --cache-ttl=168h \
-              --cache-repo=registry.satriashp.cloud/kaniko-cache \
+              --cache-repo=registry.satriashp.site/kaniko-cache \
               --compressed-caching=false \
-              --destination=registry.satriashp.cloud/backend-todo:0.1.0
+              --destination=registry.satriashp.site/backend-todo:0.1.0
             '''
           }
         }

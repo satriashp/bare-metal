@@ -4,9 +4,9 @@ metadata:
   name: jenkins-service
   namespace: devops-tools
   annotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/path: /
-      prometheus.io/port: '8080'
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /
+    prometheus.io/port: "8080"
 spec:
   selector:
     app: jenkins-server
@@ -45,7 +45,7 @@ spec:
       name: traefik-gateway
       sectionName: websecure
   hostnames:
-    - jenkins.satriashp.cloud
+    - jenkins.satriashp.site
   rules:
     - matches:
         - path:
@@ -56,7 +56,7 @@ spec:
         #   requestHeaderModifier:
         #     set:
         #     - name: X-Forwarded-Host
-        #       value: "jenkins.satriashp.cloud"
+        #       value: "jenkins.satriashp.site"
         #     - name: X-Forwarded-Proto
         #       value: "https"
         - type: ExtensionRef
@@ -84,7 +84,7 @@ spec:
       group: gateway.networking.k8s.io
       sectionName: web
   hostnames:
-    - "jenkins.satriashp.cloud"
+    - "jenkins.satriashp.site"
   rules:
     - matches:
         - path:
@@ -105,6 +105,6 @@ spec:
   headers:
     customRequestHeaders:
       X-Forwarded-Proto: "https"
-      X-Forwarded-Host: "jenkins.satriashp.cloud"
+      X-Forwarded-Host: "jenkins.satriashp.site"
       X-Forwarded-Port: "443"
-      Host: "jenkins.satriashp.cloud"
+      Host: "jenkins.satriashp.site"

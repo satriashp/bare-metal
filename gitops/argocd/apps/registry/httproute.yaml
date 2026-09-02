@@ -11,7 +11,7 @@ spec:
       name: traefik-gateway
       sectionName: websecure
   hostnames:
-    - registry.satriashp.cloud
+    - registry.satriashp.site
   rules:
     - matches:
         - path:
@@ -44,7 +44,7 @@ spec:
       group: gateway.networking.k8s.io
       sectionName: web
   hostnames:
-    - "registry.satriashp.cloud"
+    - "registry.satriashp.site"
   rules:
     - matches:
         - path:
@@ -78,8 +78,8 @@ metadata:
 spec:
   headers:
     customRequestHeaders:
-      Access-Control-Allow-Origin: '[https://registry.satriashp.cloud]'
-      Access-Control-Allow-Methods: '[HEAD,GET,OPTIONS,DELETE]'
-      Access-Control-Allow-Credentials: '[true]'
-      Access-Control-Allow-Headers: '[Authorization,Accept,Cache-Control]'
-      Access-Control-Expose-Headers: '[Docker-Content-Digest]'
+      Access-Control-Allow-Origin: "[https://registry.satriashp.site]"
+      Access-Control-Allow-Methods: "[HEAD,GET,OPTIONS,DELETE]"
+      Access-Control-Allow-Credentials: "[true]"
+      Access-Control-Allow-Headers: "[Authorization,Accept,Cache-Control]"
+      Access-Control-Expose-Headers: "[Docker-Content-Digest]"

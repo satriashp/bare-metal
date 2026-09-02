@@ -25,7 +25,7 @@ spec:
       name: traefik-gateway
       sectionName: websecure
   hostnames:
-    - longhorn.satriashp.cloud
+    - longhorn.satriashp.site
   rules:
     - matches:
         - path:
@@ -51,7 +51,7 @@ spec:
       group: gateway.networking.k8s.io
       sectionName: web
   hostnames:
-    - "longhorn.satriashp.cloud"
+    - "longhorn.satriashp.site"
   rules:
     - matches:
         - path:

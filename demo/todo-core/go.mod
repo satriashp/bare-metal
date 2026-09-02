@@ -1,4 +1,4 @@
-module backend-todo
+module todo-core
 
 go 1.26.2
 

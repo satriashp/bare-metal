@@ -3,26 +3,30 @@ package main
 import (
   "log"
   "net/http"
+
+  "todo-core/internal/db"
+  "todo-core/internal/handlers"
 )
 
 func main() {
-  go InitDB() //run in background
+  db.Init()
+  db.Migrate()
 
   http.HandleFunc("/todos", func(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case http.MethodGet:
-      GetTodos(w, r)
+      handlers.GetTodos(w, r)
     case http.MethodPost:
-      CreateTodo(w, r)
+      handlers.CreateTodo(w, r)
     default:
       http.Error(w, "method not allowed", 405)
     }
   })
 
-  http.HandleFunc("/healthz", Healthz)
-  http.HandleFunc("/readyz", Readyz)
+  http.HandleFunc("/healthz", handlers.Healthz)
+  http.HandleFunc("/readyz", handlers.Readyz)
 
-  http.HandleFunc("/debug", Debug)
+  http.HandleFunc("/debug", handlers.Debug)
 
   log.Println("Server running on :8080")
   log.Fatal(http.ListenAndServe(":8080", nil))
